@@ -13,7 +13,7 @@ The demonstration involves two components:
 2. Navigate into the cloned repository: `cd CovertChannelAttacks_MQTT`
 3. Create a virtual environment: `python3 -m venv env`
 4. Activate the virtual environment: `source env/bin/activate`
-5. Install the necessary Python modules using pip: `pip install paho-mqtt`
+5. Install the necessary Python module using pip: `pip install paho-mqtt`
 
 ## Running
 
