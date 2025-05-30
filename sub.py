@@ -42,6 +42,7 @@ def on_message(client, userdata, msg):
     else:
         storage_bitstring += str(qos)
 
+
 if __name__ == "__main__":
     broker = input("Enter broker: ")
     client = mqtt.Client()
