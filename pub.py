@@ -42,6 +42,6 @@ if __name__ == "__main__":
     timing_secret = input("Enter timing secret: ")
     storage_bitstring = string_to_bitstring(storage_secret)
     timing_bitstring = string_to_bitstring(timing_secret)
-    timing_bitstring = "11111111" + timing_bitstring
+    timing_bitstring = timing_bitstring + "11111111"
     client.loop_start()
     publish(storage_bitstring, timing_bitstring)
