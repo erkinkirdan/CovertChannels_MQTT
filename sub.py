@@ -1,8 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
 
-BROKER = "test.mosquitto.org"
-TOPIC = "test/topic"
+TOPIC = "kgortlswe"
 
 
 def on_connect(client, userdata, flags, rc):
@@ -12,47 +11,41 @@ def on_connect(client, userdata, flags, rc):
 
 storage_bitstring = ""
 timing_bitstring = ""
-storage_complete = False
-timing_complete = False
-last_message_time = None
-
+last_message_time = 0
+skip_first_timing = True
+skip_first_storage = True
 
 def bitstring_to_string(b):
     return "".join(chr(int(b[i : i + 8], 2)) for i in range(0, len(b), 8))
 
 
 def on_message(client, userdata, msg):
-    global storage_bitstring, timing_bitstring, storage_complete, timing_complete, last_message_time
+    global storage_bitstring, timing_bitstring, last_message_time, skip_first_timing, skip_first_storage
     qos = msg.qos
     current_time = time.time()
-    if last_message_time is not None:
-        elapsed_time = current_time - last_message_time
-        if elapsed_time >= 0.75:
-            timing_bitstring += "1"
-        else:
-            timing_bitstring += "0"
-        if timing_bitstring.endswith("11111111"):
-            if timing_complete:
-                timing_secret = bitstring_to_string(timing_bitstring[:-8])
-                print("Timing secret: " + timing_secret)
-            else:
-                timing_complete = True
-            timing_bitstring = ""
+    elapsed_time = current_time - last_message_time
+    if elapsed_time >= 0.5:
+        timing_bitstring += "1"
+    else:
+        timing_bitstring += "0"
+    if timing_bitstring.endswith("11111111"):
+        if not skip_first_timing:
+            print("Timing secret: " + bitstring_to_string(timing_bitstring[:-8]))
+        skip_first_timing = False
+        timing_bitstring = ""
     last_message_time = current_time
     if qos == 2:
-        if storage_complete:
-            storage_secret = bitstring_to_string(storage_bitstring)
-            print("Storage secret: " + storage_secret)
-            storage_bitstring = ""
-        else:
-            storage_complete = True
-    elif storage_complete:
-        bit = str(qos)
-        storage_bitstring += bit
+        if not skip_first_storage:
+            print("Storage secret: " + bitstring_to_string(storage_bitstring))
+        skip_first_storage = False
+        storage_bitstring = ""
+    else:
+        storage_bitstring += str(qos)
 
-
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect(BROKER)
-client.loop_forever()
+if __name__ == "__main__":
+    broker = input("Enter broker: ")
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(broker)
+    client.loop_forever()
