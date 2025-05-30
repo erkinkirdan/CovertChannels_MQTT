@@ -15,6 +15,7 @@ last_message_time = 0
 skip_first_timing = True
 skip_first_storage = True
 
+
 def bitstring_to_string(b):
     return "".join(chr(int(b[i : i + 8], 2)) for i in range(0, len(b), 8))
 
